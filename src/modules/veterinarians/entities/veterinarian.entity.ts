@@ -21,7 +21,7 @@ export class Veterinarian {
     last_name: string
 
     @Column({ type: 'varchar', length: 50, unique: true })
-    lincense_number: string
+    license_number: string
 
     @Column({ type: 'uuid' })
     specialty_id: string

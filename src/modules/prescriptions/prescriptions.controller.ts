@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { PrescriptionsService } from './prescriptions.service';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
 import { UpdatePrescriptionDto } from './dto/update-prescription.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Prescriptions')
+@ApiBearerAuth()
 @Controller('prescriptions')
 export class PrescriptionsController {
   constructor(private readonly prescriptionsService: PrescriptionsService) {}
@@ -18,17 +21,17 @@ export class PrescriptionsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.prescriptionsService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.prescriptionsService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePrescriptionDto: UpdatePrescriptionDto) {
-    return this.prescriptionsService.update(+id, updatePrescriptionDto);
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() updatePrescriptionDto: UpdatePrescriptionDto) {
+    return this.prescriptionsService.update(id, updatePrescriptionDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.prescriptionsService.remove(+id);
+  @Delete(':id') 
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.prescriptionsService.remove(id);
   }
 }

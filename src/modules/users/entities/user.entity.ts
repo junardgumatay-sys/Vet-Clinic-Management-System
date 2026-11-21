@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { UserRole } from "../../../common/enums/role.enum";
-import { timestamp } from "rxjs";
+import { Exclude } from "class-transformer";
 
 @Entity('users')
 export class User {
@@ -10,6 +10,7 @@ export class User {
     @Column({ type: 'varchar', length: 100, unique: true })
     email: string
 
+    @Exclude()
     @Column({ type: 'varchar', length: 255 })
     password_hash: string
 

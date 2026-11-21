@@ -23,6 +23,11 @@ import { AppointmentsModule } from './modules/appointments/appointments.module';
 import { MedicalRecordsModule } from './modules/medical_records/medical_records.module';
 import { PrescriptionsModule } from './modules/prescriptions/prescriptions.module';
 import { PaymentsModule } from './modules/payments/payments.module';
+import { AuthModule } from './auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/guard/jwt-auth.guard';
+import { RolesGuard } from './auth/guard/roles.guard';
+import * as Joi from 'joi';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -39,20 +44,38 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
     ConfigModule.forRoot({
       isGlobal: true,
+      validationSchema: Joi.object({
+        NODE_ENV: Joi.string()
+          .valid('development', 'production', 'test')
+          .default('development'),
+        PORT: Joi.number().default(3000),
+        DB_HOST: Joi.string().required(),
+        DB_PORT: Joi.number().default(5432),
+        DB_USERNAME: Joi.string().required(),
+        DB_PASSWORD: Joi.string().required(),
+        DB_NAME: Joi.string().required(),
+        DB_SSL: Joi.string().valid('true', 'false').default('false'),
+        JWT_SECRET: Joi.string().required(),
+        FRONTEND_URL: Joi.string().optional(),
+      }),
     }),
 
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: (config: ConfigService) => ({
         type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_NAME'),
-        autoLoadEntities: true, // Automatically finds your entity files later
-        synchronize: true,
+        host: config.get<string>('DB_HOST'),
+        port: config.get<number>('DB_PORT'),
+        username: config.get<string>('DB_USERNAME'),
+        password: config.get<string>('DB_PASSWORD'),
+        database: config.get<string>('DB_NAME'),
+        autoLoadEntities: true,
+        synchronize: config.get<string>('NODE_ENV') !== 'production',
+        ssl:
+          config.get<string>('DB_SSL') === 'true'
+            ? { rejectUnauthorized: false }
+            : false,
       }),
     }),
 
@@ -93,8 +116,20 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     PrescriptionsModule,
 
     PaymentsModule,
+
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}

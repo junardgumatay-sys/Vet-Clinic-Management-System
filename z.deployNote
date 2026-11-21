@@ -1,0 +1,23 @@
+Note: Connect the front end in env. and main.ts
+
+Note: Once you deploy to production, run npm run migration:run and npm run seed
+        against your production database before starting the server.
+
+
+Note: Change env. swagger to false, set ssl to true
+
+FornEnd Needs:
+
+        Base URL (http://localhost:3000 locally, or your deployed URL)
+
+        OpenAPI JSON spec (http://localhost:3000/api/docs-json) for auto-generating TypeScript types/hooks
+
+        Seeded test credentials (admin@vetclinic.com / Admin@123) and the auth header format (Authorization: Bearer <access_token>).
+
+Run these commands if using cloud
+        npm run migration:run && npm run seed
+        npm run start:prod
+
+Final verification:
+        npm run build
+        npm run test:e2e

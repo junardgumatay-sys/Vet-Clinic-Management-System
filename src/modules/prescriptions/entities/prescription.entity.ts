@@ -4,7 +4,7 @@ import { MedicalRecord } from "../../medical_records/entities/medical_record.ent
 @Entity('prescriptions')
 export class Prescription {
     @PrimaryGeneratedColumn('uuid')
-    prescription_id: number;
+    prescription_id: string;
 
     @Column({ type: 'uuid', unique: true })
     record_id: string;

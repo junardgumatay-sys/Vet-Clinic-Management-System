@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { PetsService } from './pets.service';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Pets')
+@ApiBearerAuth()
 @Controller('pets')
 export class PetsController {
   constructor(private readonly petsService: PetsService) {}
@@ -15,5 +18,23 @@ export class PetsController {
   @Get()
   findAll() {
     return this.petsService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.petsService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(
+  @Param('id', ParseUUIDPipe) id: string,
+  @Body() updatePetDto: UpdatePetDto,
+  ) {
+    return this.petsService.update(id, updatePetDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.petsService.remove(id);
   }
 }
